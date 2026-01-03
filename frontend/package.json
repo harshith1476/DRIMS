@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build --outDir dist",
     "preview": "vite preview"
   },
+  "vercel-build": "npm run build",
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
