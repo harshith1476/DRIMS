@@ -1,6 +1,35 @@
 # Department Research Information Management System (DRIMS)
 
+[![Java](https://img.shields.io/badge/Java-17-orange.svg)](https://www.oracle.com/java/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![React](https://img.shields.io/badge/React-18.2-blue.svg)](https://reactjs.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Latest-green.svg)](https://www.mongodb.com/)
+[![License](https://img.shields.io/badge/License-Academic-blue.svg)](LICENSE)
+
 A complete, production-ready web application for managing academic research data, replacing Excel-based data collection with a secure, modern web platform.
+
+🌐 **Live Demo:** [ajp-pro.vercel.app](https://ajp-pro.vercel.app)  
+📦 **Repository:** [GitHub](https://github.com/harshith1476/DRIMS)
+
+## 📑 Table of Contents
+
+- [Project Overview](#-project-overview)
+- [Features](#-features)
+- [Tech Stack](#️-tech-stack)
+- [Prerequisites](#-prerequisites)
+- [Quick Start](#-quick-start)
+- [Setup Instructions](#-detailed-setup-instructions)
+- [Default Credentials](#-default-credentials)
+- [Project Structure](#-project-structure)
+- [Maven Commands](#-maven-commands)
+- [NPM Commands](#-npm-commands)
+- [MongoDB Schema](#️-mongodb-schema)
+- [Security Features](#-security-features)
+- [API Endpoints](#-api-endpoints)
+- [Deployment Guide](#-deployment-guide)
+- [Troubleshooting](#-troubleshooting)
+- [Additional Documentation](#-additional-documentation)
+- [Contributing](#-contributing)
 
 ## 🎯 Project Overview
 
@@ -75,13 +104,37 @@ Before you begin, ensure you have the following installed:
    - Local: Download from [MongoDB Download Center](https://www.mongodb.com/try/download/community)
    - Cloud: Create free account at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
 
-## 🚀 Setup Instructions
+## 🚀 Quick Start
+
+```bash
+# Clone the repository
+git clone https://github.com/harshith1476/DRIMS.git
+cd AJP-Proj
+
+# Backend setup
+cd backend
+mvn clean install
+mvn spring-boot:run
+
+# Frontend setup (in a new terminal)
+cd frontend
+npm install
+npm run dev
+```
+
+Access the application at `http://localhost:5173`
+
+**Default Login:**
+- Admin: `admin@drims.edu` / `admin123`
+- Faculty: `faculty@drims.edu` / `faculty123`
+
+## 📖 Detailed Setup Instructions
 
 ### Step 1: Clone/Download the Project
 
 Navigate to the project directory:
 ```bash
-cd AJP-Pro
+cd AJP-Proj
 ```
 
 ### Step 2: MongoDB Setup
@@ -130,7 +183,16 @@ cd AJP-Pro
    java -jar target/drims-backend-1.0.0.jar
    ```
 
+   Or using the provided scripts (Linux/Mac):
+   ```bash
+   chmod +x build.sh start.sh
+   ./build.sh
+   ./start.sh
+   ```
+
 4. Backend will start on `http://localhost:8080`
+
+**Note:** The backend includes deployment scripts (`build.sh`, `start.sh`) for easy deployment on cloud platforms like Render.com.
 
 ### Step 4: Frontend Setup
 
@@ -189,35 +251,44 @@ All faculty credentials are stored in separate files for easy reference:
 ## 📁 Project Structure
 
 ```
-AJP-Pro/
+AJP-Proj/
 ├── backend/
 │   ├── src/
 │   │   ├── main/
 │   │   │   ├── java/com/drims/
-│   │   │   │   ├── controller/     # REST Controllers
-│   │   │   │   ├── service/       # Business Logic
-│   │   │   │   ├── repository/    # MongoDB Repositories
-│   │   │   │   ├── entity/        # MongoDB Documents
-│   │   │   │   ├── dto/           # Data Transfer Objects
+│   │   │   │   ├── controller/     # REST Controllers (Auth, Faculty, Admin)
+│   │   │   │   ├── service/        # Business Logic (10 services)
+│   │   │   │   ├── repository/    # MongoDB Repositories (7 repositories)
+│   │   │   │   ├── entity/        # MongoDB Documents (7 entities)
+│   │   │   │   ├── dto/           # Data Transfer Objects (10 DTOs)
 │   │   │   │   ├── security/      # JWT & Security Config
-│   │   │   │   ├── config/        # Configuration Classes
-│   │   │   │   └── DRIMSApplication.java
+│   │   │   │   ├── config/        # Configuration Classes (Data Initialization)
+│   │   │   │   └── util/          # Utility Classes
 │   │   │   └── resources/
 │   │   │       └── application.properties
 │   │   └── test/
-│   └── pom.xml
+│   ├── build.sh                    # Build script for deployment
+│   ├── start.sh                    # Start script for deployment
+│   ├── render.yaml                 # Render.com deployment config
+│   └── pom.xml                     # Maven configuration
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── components/    # Reusable Components
-│   │   ├── pages/         # Page Components
-│   │   ├── services/      # API Services
-│   │   ├── App.jsx        # Main App Component
-│   │   └── main.jsx       # Entry Point
-│   ├── package.json
-│   └── vite.config.js
+│   │   ├── components/             # Reusable Components (Layout)
+│   │   ├── pages/                  # Page Components (Login, Dashboards, etc.)
+│   │   ├── services/               # API Services (auth, faculty, admin)
+│   │   ├── App.jsx                 # Main App Component
+│   │   └── main.jsx                # Entry Point
+│   ├── public/                     # Static assets (images, logo)
+│   ├── package.json                # NPM dependencies
+│   ├── vite.config.js              # Vite configuration
+│   ├── tailwind.config.js          # Tailwind CSS configuration
+│   └── vercel.json                 # Vercel deployment config
 │
-└── README.md
+├── FACULTY_CREDENTIALS*.md         # Faculty login credentials
+├── DATA_LOADING_SUMMARY.md         # Data loading documentation
+├── MONGODB_SCHEMA.md               # Database schema documentation
+└── README.md                       # This file
 ```
 
 ## 🔧 Maven Commands
@@ -342,14 +413,25 @@ npm run preview
 
 ### Backend Deployment
 
-#### Option 1: JAR File
+#### Option 1: Render.com (Recommended)
+The project includes `render.yaml` for easy deployment:
+
+1. Push code to GitHub
+2. Connect your GitHub repository to Render
+3. Render will automatically detect `render.yaml` and deploy
+4. Set environment variables in Render dashboard:
+   - `SPRING_DATA_MONGODB_URI`: Your MongoDB connection string
+   - `JWT_SECRET`: A secure random string
+   - `CORS_ALLOWED_ORIGINS`: Your frontend URL(s)
+
+#### Option 2: JAR File (Local/Server)
 ```bash
 cd backend
 mvn clean package
 java -jar target/drims-backend-1.0.0.jar
 ```
 
-#### Option 2: Docker
+#### Option 3: Docker
 Create `Dockerfile`:
 ```dockerfile
 FROM openjdk:17-jdk-slim
@@ -364,7 +446,7 @@ docker build -t drims-backend .
 docker run -p 8080:8080 drims-backend
 ```
 
-#### Option 3: Cloud Platforms
+#### Option 4: Other Cloud Platforms
 - **Heroku**: Use Heroku CLI and deploy JAR
 - **AWS Elastic Beanstalk**: Upload JAR file
 - **Google Cloud Run**: Containerize and deploy
@@ -372,20 +454,31 @@ docker run -p 8080:8080 drims-backend
 
 ### Frontend Deployment
 
-#### Option 1: Build Static Files
+#### Option 1: Vercel (Recommended)
+The project includes `vercel.json` for easy deployment:
+
+1. Install Vercel CLI: `npm i -g vercel`
+2. Navigate to frontend directory: `cd frontend`
+3. Deploy: `vercel`
+4. Or connect GitHub repository to Vercel dashboard
+
+**Note:** Update backend CORS settings to include your Vercel URL.
+
+#### Option 2: Netlify
+```bash
+cd frontend
+npm run build
+# Deploy 'dist' folder to Netlify
+```
+
+#### Option 3: Build Static Files
 ```bash
 cd frontend
 npm run build
 # Serve the 'dist' folder using any static file server
 ```
 
-#### Option 2: Vercel/Netlify
-```bash
-npm run build
-# Deploy 'dist' folder to Vercel or Netlify
-```
-
-#### Option 3: Nginx
+#### Option 4: Nginx
 ```nginx
 server {
     listen 80;
@@ -447,7 +540,18 @@ cors.allowed-origins=${ALLOWED_ORIGINS}
    - Delete `node_modules` and `package-lock.json`
    - Run `npm install` again
 
-## 📝 Notes
+## 📚 Additional Documentation
+
+The repository includes several documentation files:
+
+- **`FACULTY_CREDENTIALS_COMPLETE.md`** - Complete list of all faculty credentials
+- **`FACULTY_CREDENTIALS_PART1.md`** - Faculty members 1-40
+- **`FACULTY_CREDENTIALS_PART2.md`** - Faculty members 41-109+
+- **`DATA_LOADING_SUMMARY.md`** - Information about data initialization
+- **`COMPREHENSIVE_DATA_LOADING_COMPLETE.md`** - Complete data loading documentation
+- **`MONGODB_SCHEMA.md`** - Detailed database schema information
+
+## 📝 Important Notes
 
 - File uploads are stored in the `uploads` directory (configurable)
 - Only PDF files are accepted for document uploads
@@ -455,37 +559,64 @@ cors.allowed-origins=${ALLOWED_ORIGINS}
 - All passwords are hashed using BCrypt
 - Faculty can only view/edit their own data
 - Admin has read-only access to all data
+- The system automatically initializes with sample data on first startup
+- All faculty accounts are created automatically from Excel data
 
 ## 🤝 Contributing
 
-This is an academic project. For improvements:
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+This is an academic project. Contributions are welcome! For improvements:
+
+1. **Fork the repository**
+2. **Create a feature branch** (`git checkout -b feature/AmazingFeature`)
+3. **Commit your changes** (`git commit -m 'Add some AmazingFeature'`)
+4. **Push to the branch** (`git push origin feature/AmazingFeature`)
+5. **Open a Pull Request**
+
+### Development Guidelines
+
+- Follow Java and JavaScript coding conventions
+- Write meaningful commit messages
+- Update documentation for new features
+- Test your changes before submitting PR
 
 ## 📄 License
 
 This project is created for academic purposes.
 
+## 📸 Screenshots
+
+> _Screenshots of the application will be added here_
+
 ## 👨‍💻 Author
 
+**Harshith**  
 Developed as part of Advanced Java Programming (AJP) project.
+
+- GitHub: [@harshith1476](https://github.com/harshith1476)
+- Repository: [DRIMS](https://github.com/harshith1476/DRIMS)
 
 ## 🎓 Academic Use
 
 This project demonstrates:
-- Full-stack development with Java and React
-- RESTful API design
-- JWT authentication and authorization
-- MongoDB NoSQL database usage
-- Modern UI/UX with Tailwind CSS
-- Data visualization with charts
-- Excel export functionality
-- File upload handling
-- Role-based access control
+- ✅ Full-stack development with Java and React
+- ✅ RESTful API design
+- ✅ JWT authentication and authorization
+- ✅ MongoDB NoSQL database usage
+- ✅ Modern UI/UX with Tailwind CSS
+- ✅ Data visualization with Recharts
+- ✅ Excel export functionality (Apache POI)
+- ✅ File upload handling
+- ✅ Role-based access control (RBAC)
+- ✅ Production deployment (Render + Vercel)
+
+## 🙏 Acknowledgments
+
+- Spring Boot team for the excellent framework
+- React team for the powerful UI library
+- MongoDB for the flexible database solution
+- All open-source contributors whose libraries made this project possible
 
 ---
 
-**For any issues or questions, please refer to the code comments or contact the development team.**
+**For any issues or questions, please refer to the code comments, documentation files, or open an issue on GitHub.**
 
