@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { adminService } from '../services/adminService';
+import './AdminFacultyDetail.css';
 
 function AdminFacultyDetail() {
   const { id } = useParams();
@@ -25,14 +26,22 @@ function AdminFacultyDetail() {
     }
   };
 
+  // Get initials for avatar
+  const getInitials = (name) => {
+    if (!name) return 'FA';
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
+
   if (loading) {
     return (
       <Layout title="Faculty Details">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading faculty data...</p>
-          </div>
+        <div className="faculty-loading">
+          <div className="loading-spinner"></div>
+          <p>Loading faculty data...</p>
         </div>
       </Layout>
     );
@@ -41,7 +50,7 @@ function AdminFacultyDetail() {
   if (!data) {
     return (
       <Layout title="Faculty Details">
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div className="faculty-error">
           Faculty data not found
         </div>
       </Layout>
@@ -49,80 +58,94 @@ function AdminFacultyDetail() {
   }
 
   const { profile, targets, journals, conferences, patents, bookChapters } = data;
+  const totalPublications = journals.length + conferences.length + patents.length + bookChapters.length;
 
   return (
     <Layout title={`Faculty Details - ${profile.name}`}>
-      {/* Back Button */}
-      <button
-        onClick={() => navigate('/admin/faculty')}
-        className="mb-4 flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
-      >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-        </svg>
-        Back to Faculty List
-      </button>
+      <div className="faculty-detail-page">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate('/admin/faculty')}
+          className="back-button"
+        >
+          <svg className="back-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back to Faculty List
+        </button>
 
-      {/* Profile Header Card */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg shadow-lg p-6 mb-6 text-white">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">{profile.name}</h1>
-            <div className="space-y-1">
-              <p className="text-blue-100"><span className="font-semibold">Employee ID:</span> {profile.employeeId}</p>
-              <p className="text-blue-100"><span className="font-semibold">Designation:</span> {profile.designation}</p>
-              <p className="text-blue-100"><span className="font-semibold">Department:</span> {profile.department}</p>
-              <p className="text-blue-100"><span className="font-semibold">Email:</span> {profile.email}</p>
+        {/* Official Profile Header */}
+        <div className="faculty-header-card">
+          <div className="faculty-header-content">
+            <div className="faculty-avatar-section">
+              <div className="faculty-avatar">
+                {getInitials(profile.name)}
+              </div>
             </div>
-          </div>
-          <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4">
-            <div className="text-center">
-              <div className="text-4xl font-bold">{journals.length + conferences.length + patents.length + bookChapters.length}</div>
-              <div className="text-sm text-blue-100">Total Publications</div>
+            
+            <div className="faculty-info-section">
+              <h1 className="faculty-name">{profile.name}</h1>
+              <p className="faculty-designation">{profile.designation}</p>
+              <p className="faculty-department">{profile.department}</p>
+              <div className="faculty-meta">
+                <span className="faculty-meta-item">
+                  <strong>Employee ID:</strong> {profile.employeeId}
+                </span>
+                <span className="faculty-meta-item">
+                  <strong>Email:</strong> {profile.email}
+                </span>
+              </div>
+            </div>
+
+            <div className="faculty-metrics-section">
+              <div className="metric-card">
+                <div className="metric-value">{totalPublications}</div>
+                <div className="metric-label">Total Publications</div>
+              </div>
+              <div className="metric-card">
+                <div className="metric-value">{journals.length}</div>
+                <div className="metric-label">Journals</div>
+              </div>
+              <div className="metric-card">
+                <div className="metric-value">{conferences.length}</div>
+                <div className="metric-label">Conferences</div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Tabs */}
-      <div className="bg-white rounded-lg shadow mb-6">
-        <div className="border-b border-gray-200">
-          <nav className="flex -mb-px">
+        {/* Official Tabs */}
+        <div className="faculty-tabs-container">
+          <nav className="faculty-tabs">
             {[
-              { id: 'overview', label: 'Overview', icon: '📊' },
-              { id: 'targets', label: 'Research Targets', icon: '🎯' },
-              { id: 'journals', label: `Journals (${journals.length})`, icon: '📚' },
-              { id: 'conferences', label: `Conferences (${conferences.length})`, icon: '🎤' },
-              { id: 'patents', label: `Patents (${patents.length})`, icon: '🔬' },
-              { id: 'bookChapters', label: `Book Chapters (${bookChapters.length})`, icon: '📖' }
+              { id: 'overview', label: 'Overview' },
+              { id: 'targets', label: 'Research Targets' },
+              { id: 'journals', label: `Journals (${journals.length})` },
+              { id: 'conferences', label: `Conferences (${conferences.length})` },
+              { id: 'patents', label: `Patents (${patents.length})` },
+              { id: 'bookChapters', label: `Book Chapters (${bookChapters.length})` }
             ].map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === tab.id
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+                className={`faculty-tab ${activeTab === tab.id ? 'active' : ''}`}
               >
-                <span className="mr-2">{tab.icon}</span>
                 {tab.label}
               </button>
             ))}
           </nav>
         </div>
-      </div>
 
-      {/* Tab Content */}
-      <div className="bg-white rounded-lg shadow p-6">
+        {/* Tab Content */}
+        <div className="faculty-content">
         {activeTab === 'overview' && (
           <div className="space-y-6">
             {/* Research Areas */}
-            <div>
-              <h3 className="text-lg font-semibold mb-3 text-gray-800">Research Areas</h3>
-              <div className="flex flex-wrap gap-2">
+            <div className="content-section">
+              <h3 className="section-title">Research Areas</h3>
+              <div className="research-areas">
                 {profile.researchAreas?.map((area, index) => (
-                  <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                  <span key={index} className="research-pill">
                     {area}
                   </span>
                 ))}
@@ -130,26 +153,26 @@ function AdminFacultyDetail() {
             </div>
 
             {/* Academic Profiles */}
-            <div>
-              <h3 className="text-lg font-semibold mb-3 text-gray-800">Academic Profiles</h3>
-              <div className="grid md:grid-cols-3 gap-4">
+            <div className="content-section">
+              <h3 className="section-title">Academic Profiles</h3>
+              <div className="academic-profiles-grid">
                 {profile.orcidId && (
-                  <div className="border border-gray-200 rounded-lg p-4">
-                    <p className="text-sm text-gray-500 mb-1">ORCID ID</p>
-                    <p className="font-medium">{profile.orcidId}</p>
+                  <div className="academic-profile-card">
+                    <p className="academic-profile-label">ORCID ID</p>
+                    <p className="academic-profile-value">{profile.orcidId}</p>
                   </div>
                 )}
                 {profile.scopusId && (
-                  <div className="border border-gray-200 rounded-lg p-4">
-                    <p className="text-sm text-gray-500 mb-1">Scopus ID</p>
-                    <p className="font-medium">{profile.scopusId}</p>
+                  <div className="academic-profile-card">
+                    <p className="academic-profile-label">Scopus ID</p>
+                    <p className="academic-profile-value">{profile.scopusId}</p>
                   </div>
                 )}
                 {profile.googleScholarLink && (
-                  <div className="border border-gray-200 rounded-lg p-4">
-                    <p className="text-sm text-gray-500 mb-1">Google Scholar</p>
-                    <a href={profile.googleScholarLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                      View Profile
+                  <div className="academic-profile-card">
+                    <p className="academic-profile-label">Google Scholar</p>
+                    <a href={profile.googleScholarLink} target="_blank" rel="noopener noreferrer" className="academic-profile-link">
+                      View Profile →
                     </a>
                   </div>
                 )}
@@ -157,24 +180,24 @@ function AdminFacultyDetail() {
             </div>
 
             {/* Statistics */}
-            <div>
-              <h3 className="text-lg font-semibold mb-3 text-gray-800">Publication Statistics</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-blue-50 rounded-lg p-4 text-center">
-                  <div className="text-3xl font-bold text-blue-600">{journals.length}</div>
-                  <div className="text-sm text-gray-600 mt-1">Journals</div>
+            <div className="content-section">
+              <h3 className="section-title">Publication Statistics</h3>
+              <div className="stats-grid">
+                <div className="stat-box stat-box-blue">
+                  <div className="stat-box-value">{journals.length}</div>
+                  <div className="stat-box-label">Journals</div>
                 </div>
-                <div className="bg-purple-50 rounded-lg p-4 text-center">
-                  <div className="text-3xl font-bold text-purple-600">{conferences.length}</div>
-                  <div className="text-sm text-gray-600 mt-1">Conferences</div>
+                <div className="stat-box stat-box-slate">
+                  <div className="stat-box-value">{conferences.length}</div>
+                  <div className="stat-box-label">Conferences</div>
                 </div>
-                <div className="bg-orange-50 rounded-lg p-4 text-center">
-                  <div className="text-3xl font-bold text-orange-600">{patents.length}</div>
-                  <div className="text-sm text-gray-600 mt-1">Patents</div>
+                <div className="stat-box stat-box-slate">
+                  <div className="stat-box-value">{patents.length}</div>
+                  <div className="stat-box-label">Patents</div>
                 </div>
-                <div className="bg-indigo-50 rounded-lg p-4 text-center">
-                  <div className="text-3xl font-bold text-indigo-600">{bookChapters.length}</div>
-                  <div className="text-sm text-gray-600 mt-1">Book Chapters</div>
+                <div className="stat-box stat-box-slate">
+                  <div className="stat-box-value">{bookChapters.length}</div>
+                  <div className="stat-box-label">Book Chapters</div>
                 </div>
               </div>
             </div>
@@ -182,30 +205,30 @@ function AdminFacultyDetail() {
         )}
 
         {activeTab === 'targets' && (
-          <div>
-            <h3 className="text-lg font-semibold mb-4 text-gray-800">Research Targets</h3>
+          <div className="content-section">
+            <h3 className="section-title">Research Targets</h3>
             {targets.length === 0 ? (
-              <p className="text-gray-500">No targets set</p>
+              <p className="empty-state">No targets set</p>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+              <div className="table-wrapper">
+                <table className="faculty-table">
+                  <thead>
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Year</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Journals</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Conferences</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Patents</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Book Chapters</th>
+                      <th>Year</th>
+                      <th>Journals</th>
+                      <th>Conferences</th>
+                      <th>Patents</th>
+                      <th>Book Chapters</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody>
                     {targets.map((target) => (
                       <tr key={target.id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">{target.year}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">{target.journalTarget || 0}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">{target.conferenceTarget || 0}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">{target.patentTarget || 0}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">{target.bookChapterTarget || 0}</td>
+                        <td className="font-medium">{target.year}</td>
+                        <td>{target.journalTarget || 0}</td>
+                        <td>{target.conferenceTarget || 0}</td>
+                        <td>{target.patentTarget || 0}</td>
+                        <td>{target.bookChapterTarget || 0}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -216,38 +239,60 @@ function AdminFacultyDetail() {
         )}
 
         {activeTab === 'journals' && (
-          <div>
-            <h3 className="text-lg font-semibold mb-4 text-gray-800">Journal Publications</h3>
+          <div className="content-section">
+            <h3 className="section-title">Journal Publications</h3>
             {journals.length === 0 ? (
-              <p className="text-gray-500">No journal publications</p>
+              <p className="empty-state">No journal publications</p>
             ) : (
-              <div className="space-y-4">
+              <div className="publications-list">
                 {journals.map((journal) => (
-                  <div key={journal.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <h4 className="font-semibold text-gray-800 mb-2">{journal.title}</h4>
-                    <div className="grid md:grid-cols-2 gap-2 text-sm text-gray-600">
-                      <p><span className="font-medium">Journal:</span> {journal.journalName}</p>
-                      <p><span className="font-medium">Year:</span> {journal.year}</p>
-                      <p><span className="font-medium">Authors:</span> {journal.authors}</p>
-                      {journal.volume && <p><span className="font-medium">Volume:</span> {journal.volume}</p>}
-                      {journal.issue && <p><span className="font-medium">Issue:</span> {journal.issue}</p>}
+                  <div key={journal.id} className="publication-card">
+                    <h4 className="publication-title">{journal.title}</h4>
+                    <div className="publication-details">
+                      <div className="publication-detail-row">
+                        <span className="detail-label">Journal:</span>
+                        <span className="detail-value">{journal.journalName}</span>
+                      </div>
+                      <div className="publication-detail-row">
+                        <span className="detail-label">Year:</span>
+                        <span className="detail-value">{journal.year}</span>
+                      </div>
+                      <div className="publication-detail-row">
+                        <span className="detail-label">Authors:</span>
+                        <span className="detail-value">{journal.authors}</span>
+                      </div>
+                      {journal.volume && (
+                        <div className="publication-detail-row">
+                          <span className="detail-label">Volume:</span>
+                          <span className="detail-value">{journal.volume}</span>
+                        </div>
+                      )}
+                      {journal.issue && (
+                        <div className="publication-detail-row">
+                          <span className="detail-label">Issue:</span>
+                          <span className="detail-value">{journal.issue}</span>
+                        </div>
+                      )}
                       {journal.doi && (
-                        <p><span className="font-medium">DOI:</span> 
-                          <a href={journal.doi} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-1">
+                        <div className="publication-detail-row">
+                          <span className="detail-label">DOI:</span>
+                          <a href={journal.doi} target="_blank" rel="noopener noreferrer" className="detail-link">
                             {journal.doi}
                           </a>
-                        </p>
+                        </div>
                       )}
-                      {journal.impactFactor && <p><span className="font-medium">Impact Factor:</span> {journal.impactFactor}</p>}
-                      <p><span className="font-medium">Status:</span> 
-                        <span className={`ml-2 px-2 py-1 rounded text-xs ${
-                          journal.status === 'Published' ? 'bg-green-100 text-green-800' :
-                          journal.status === 'Accepted' ? 'bg-blue-100 text-blue-800' :
-                          'bg-yellow-100 text-yellow-800'
-                        }`}>
+                      {journal.impactFactor && (
+                        <div className="publication-detail-row">
+                          <span className="detail-label">Impact Factor:</span>
+                          <span className="detail-value">{journal.impactFactor}</span>
+                        </div>
+                      )}
+                      <div className="publication-detail-row">
+                        <span className="detail-label">Status:</span>
+                        <span className={`status-badge status-${journal.status.toLowerCase()}`}>
                           {journal.status}
                         </span>
-                      </p>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -257,30 +302,46 @@ function AdminFacultyDetail() {
         )}
 
         {activeTab === 'conferences' && (
-          <div>
-            <h3 className="text-lg font-semibold mb-4 text-gray-800">Conference Publications</h3>
+          <div className="content-section">
+            <h3 className="section-title">Conference Publications</h3>
             {conferences.length === 0 ? (
-              <p className="text-gray-500">No conference publications</p>
+              <p className="empty-state">No conference publications</p>
             ) : (
-              <div className="space-y-4">
+              <div className="publications-list">
                 {conferences.map((conference) => (
-                  <div key={conference.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <h4 className="font-semibold text-gray-800 mb-2">{conference.title}</h4>
-                    <div className="grid md:grid-cols-2 gap-2 text-sm text-gray-600">
-                      <p><span className="font-medium">Conference:</span> {conference.conferenceName}</p>
-                      <p><span className="font-medium">Year:</span> {conference.year}</p>
-                      <p><span className="font-medium">Authors:</span> {conference.authors}</p>
-                      {conference.date && <p><span className="font-medium">Date:</span> {conference.date}</p>}
-                      {conference.location && <p><span className="font-medium">Location:</span> {conference.location}</p>}
-                      <p><span className="font-medium">Status:</span> 
-                        <span className={`ml-2 px-2 py-1 rounded text-xs ${
-                          conference.status === 'Published' ? 'bg-green-100 text-green-800' :
-                          conference.status === 'Accepted' ? 'bg-blue-100 text-blue-800' :
-                          'bg-yellow-100 text-yellow-800'
-                        }`}>
+                  <div key={conference.id} className="publication-card">
+                    <h4 className="publication-title">{conference.title}</h4>
+                    <div className="publication-details">
+                      <div className="publication-detail-row">
+                        <span className="detail-label">Conference:</span>
+                        <span className="detail-value">{conference.conferenceName}</span>
+                      </div>
+                      <div className="publication-detail-row">
+                        <span className="detail-label">Year:</span>
+                        <span className="detail-value">{conference.year}</span>
+                      </div>
+                      <div className="publication-detail-row">
+                        <span className="detail-label">Authors:</span>
+                        <span className="detail-value">{conference.authors}</span>
+                      </div>
+                      {conference.date && (
+                        <div className="publication-detail-row">
+                          <span className="detail-label">Date:</span>
+                          <span className="detail-value">{conference.date}</span>
+                        </div>
+                      )}
+                      {conference.location && (
+                        <div className="publication-detail-row">
+                          <span className="detail-label">Location:</span>
+                          <span className="detail-value">{conference.location}</span>
+                        </div>
+                      )}
+                      <div className="publication-detail-row">
+                        <span className="detail-label">Status:</span>
+                        <span className={`status-badge status-${conference.status.toLowerCase()}`}>
                           {conference.status}
                         </span>
-                      </p>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -290,29 +351,38 @@ function AdminFacultyDetail() {
         )}
 
         {activeTab === 'patents' && (
-          <div>
-            <h3 className="text-lg font-semibold mb-4 text-gray-800">Patents</h3>
+          <div className="content-section">
+            <h3 className="section-title">Patents</h3>
             {patents.length === 0 ? (
-              <p className="text-gray-500">No patents</p>
+              <p className="empty-state">No patents</p>
             ) : (
-              <div className="space-y-4">
+              <div className="publications-list">
                 {patents.map((patent) => (
-                  <div key={patent.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <h4 className="font-semibold text-gray-800 mb-2">{patent.title}</h4>
-                    <div className="grid md:grid-cols-2 gap-2 text-sm text-gray-600">
-                      <p><span className="font-medium">Patent Number:</span> {patent.patentNumber}</p>
-                      <p><span className="font-medium">Year:</span> {patent.year}</p>
-                      <p><span className="font-medium">Inventors:</span> {patent.inventors}</p>
-                      <p><span className="font-medium">Country:</span> {patent.country}</p>
-                      <p><span className="font-medium">Status:</span> 
-                        <span className={`ml-2 px-2 py-1 rounded text-xs ${
-                          patent.status === 'Granted' ? 'bg-green-100 text-green-800' :
-                          patent.status === 'Published' ? 'bg-blue-100 text-blue-800' :
-                          'bg-yellow-100 text-yellow-800'
-                        }`}>
+                  <div key={patent.id} className="publication-card">
+                    <h4 className="publication-title">{patent.title}</h4>
+                    <div className="publication-details">
+                      <div className="publication-detail-row">
+                        <span className="detail-label">Patent Number:</span>
+                        <span className="detail-value">{patent.patentNumber}</span>
+                      </div>
+                      <div className="publication-detail-row">
+                        <span className="detail-label">Year:</span>
+                        <span className="detail-value">{patent.year}</span>
+                      </div>
+                      <div className="publication-detail-row">
+                        <span className="detail-label">Inventors:</span>
+                        <span className="detail-value">{patent.inventors}</span>
+                      </div>
+                      <div className="publication-detail-row">
+                        <span className="detail-label">Country:</span>
+                        <span className="detail-value">{patent.country}</span>
+                      </div>
+                      <div className="publication-detail-row">
+                        <span className="detail-label">Status:</span>
+                        <span className={`status-badge status-${patent.status.toLowerCase()}`}>
                           {patent.status}
                         </span>
-                      </p>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -322,32 +392,58 @@ function AdminFacultyDetail() {
         )}
 
         {activeTab === 'bookChapters' && (
-          <div>
-            <h3 className="text-lg font-semibold mb-4 text-gray-800">Book Chapters</h3>
+          <div className="content-section">
+            <h3 className="section-title">Book Chapters</h3>
             {bookChapters.length === 0 ? (
-              <p className="text-gray-500">No book chapters</p>
+              <p className="empty-state">No book chapters</p>
             ) : (
-              <div className="space-y-4">
+              <div className="publications-list">
                 {bookChapters.map((chapter) => (
-                  <div key={chapter.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <h4 className="font-semibold text-gray-800 mb-2">{chapter.title}</h4>
-                    <div className="grid md:grid-cols-2 gap-2 text-sm text-gray-600">
-                      <p><span className="font-medium">Book Title:</span> {chapter.bookTitle}</p>
-                      <p><span className="font-medium">Year:</span> {chapter.year}</p>
-                      <p><span className="font-medium">Authors:</span> {chapter.authors}</p>
-                      {chapter.publisher && <p><span className="font-medium">Publisher:</span> {chapter.publisher}</p>}
-                      {chapter.editors && <p><span className="font-medium">Editors:</span> {chapter.editors}</p>}
-                      {chapter.isbn && <p><span className="font-medium">ISBN:</span> {chapter.isbn}</p>}
-                      {chapter.pages && <p><span className="font-medium">Pages:</span> {chapter.pages}</p>}
-                      <p><span className="font-medium">Status:</span> 
-                        <span className={`ml-2 px-2 py-1 rounded text-xs ${
-                          chapter.status === 'Published' ? 'bg-green-100 text-green-800' :
-                          chapter.status === 'Accepted' ? 'bg-blue-100 text-blue-800' :
-                          'bg-yellow-100 text-yellow-800'
-                        }`}>
+                  <div key={chapter.id} className="publication-card">
+                    <h4 className="publication-title">{chapter.title}</h4>
+                    <div className="publication-details">
+                      <div className="publication-detail-row">
+                        <span className="detail-label">Book Title:</span>
+                        <span className="detail-value">{chapter.bookTitle}</span>
+                      </div>
+                      <div className="publication-detail-row">
+                        <span className="detail-label">Year:</span>
+                        <span className="detail-value">{chapter.year}</span>
+                      </div>
+                      <div className="publication-detail-row">
+                        <span className="detail-label">Authors:</span>
+                        <span className="detail-value">{chapter.authors}</span>
+                      </div>
+                      {chapter.publisher && (
+                        <div className="publication-detail-row">
+                          <span className="detail-label">Publisher:</span>
+                          <span className="detail-value">{chapter.publisher}</span>
+                        </div>
+                      )}
+                      {chapter.editors && (
+                        <div className="publication-detail-row">
+                          <span className="detail-label">Editors:</span>
+                          <span className="detail-value">{chapter.editors}</span>
+                        </div>
+                      )}
+                      {chapter.isbn && (
+                        <div className="publication-detail-row">
+                          <span className="detail-label">ISBN:</span>
+                          <span className="detail-value">{chapter.isbn}</span>
+                        </div>
+                      )}
+                      {chapter.pages && (
+                        <div className="publication-detail-row">
+                          <span className="detail-label">Pages:</span>
+                          <span className="detail-value">{chapter.pages}</span>
+                        </div>
+                      )}
+                      <div className="publication-detail-row">
+                        <span className="detail-label">Status:</span>
+                        <span className={`status-badge status-${chapter.status.toLowerCase()}`}>
                           {chapter.status}
                         </span>
-                      </p>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -355,6 +451,7 @@ function AdminFacultyDetail() {
             )}
           </div>
         )}
+        </div>
       </div>
     </Layout>
   );

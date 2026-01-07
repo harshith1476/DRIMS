@@ -1,16 +1,34 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Layout from '../components/Layout';
 import { adminService } from '../services/adminService';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
+// Auto-refresh interval in milliseconds (5 seconds)
+const REFRESH_INTERVAL = 5000;
+
 function AdminAnalytics() {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const intervalRef = useRef(null);
 
   useEffect(() => {
+    // Initial load
     loadAnalytics();
+
+    // Set up auto-refresh interval
+    intervalRef.current = setInterval(() => {
+      refreshAnalytics();
+    }, REFRESH_INTERVAL);
+
+    // Cleanup interval on unmount
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
   }, []);
 
   const loadAnalytics = async () => {
@@ -21,6 +39,18 @@ function AdminAnalytics() {
       console.error('Error loading analytics:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const refreshAnalytics = async () => {
+    try {
+      setIsRefreshing(true);
+      const response = await adminService.getAnalytics();
+      setAnalytics(response.data);
+    } catch (error) {
+      console.error('Error refreshing analytics:', error);
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -64,33 +94,39 @@ function AdminAnalytics() {
 
   return (
     <Layout title="Department Analytics">
-      <div className="space-y-6">
-        <div className="flex justify-end">
+      <div className="analytics-container">
+        <div className="analytics-header">
+          <div className="live-indicator">
+            <span className={`live-dot ${isRefreshing ? 'pulsing' : ''}`}></span>
+            <span className="live-text">Live Data</span>
+          </div>
           <button
             onClick={handleExport}
-            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+            className="export-btn"
           >
             Export to Excel
           </button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold mb-4">Year-wise Totals</h3>
+        {/* Charts displayed side by side in rows */}
+        <div className="charts-grid">
+          {/* Year-wise Totals */}
+          <div className="chart-card">
+            <h3 className="chart-title">Year-wise Totals</h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={yearWiseData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="year" />
-                <YAxis />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="year" stroke="#64748b" />
+                <YAxis stroke="#64748b" />
                 <Tooltip />
-                <Legend />
-                <Bar dataKey="count" fill="#8884d8" />
+                <Bar dataKey="count" fill="#1e3a8a" />
               </BarChart>
             </ResponsiveContainer>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold mb-4">Category-wise Totals</h3>
+          {/* Category-wise Totals */}
+          <div className="chart-card">
+            <h3 className="chart-title">Category-wise Totals</h3>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -98,36 +134,32 @@ function AdminAnalytics() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
+                  outerRadius={90}
+                  fill="#1e3a8a"
                   dataKey="value"
                 >
                   {categoryWiseData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip 
+                  formatter={(value, name, props) => [
+                    `${props.payload.name}: ${value}`,
+                    'Count'
+                  ]}
+                />
+                <Legend 
+                  verticalAlign="bottom" 
+                  height={36}
+                  formatter={(value, entry) => `${entry.payload.name}: ${entry.payload.value}`}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold mb-4">Top 10 Faculty Contributions</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={facultyWiseData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" />
-                <YAxis dataKey="name" type="category" width={150} />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="value" fill="#82ca9d" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold mb-4">Status-wise Breakdown</h3>
+          {/* Status-wise Breakdown */}
+          <div className="chart-card">
+            <h3 className="chart-title">Status-wise Breakdown</h3>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -135,39 +167,70 @@ function AdminAnalytics() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
+                  outerRadius={90}
+                  fill="#1e3a8a"
                   dataKey="value"
                 >
                   {statusWiseData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip 
+                  formatter={(value, name, props) => [
+                    `${props.payload.name}: ${value}`,
+                    'Count'
+                  ]}
+                />
+                <Legend 
+                  verticalAlign="bottom" 
+                  height={36}
+                  formatter={(value, entry) => `${entry.payload.name}: ${entry.payload.value}`}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold mb-4">Summary Statistics</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div>
-              <p className="text-sm text-gray-500">Total Years</p>
-              <p className="text-2xl font-bold">{Object.keys(analytics.yearWiseTotals || {}).length}</p>
+        {/* Top 10 Faculty Contributions - Full Width */}
+        <div className="chart-card chart-card-full">
+          <h3 className="chart-title">Top 10 Faculty Contributions</h3>
+          <ResponsiveContainer width="100%" height={350}>
+            <BarChart data={facultyWiseData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <XAxis 
+                dataKey="name" 
+                stroke="#64748b" 
+                angle={-45}
+                textAnchor="end"
+                height={100}
+                interval={0}
+              />
+              <YAxis stroke="#64748b" />
+              <Tooltip />
+              <Bar dataKey="value" fill="#166534" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Summary Statistics */}
+        <div className="summary-stats">
+          <h3 className="chart-title">Summary Statistics</h3>
+          <div className="summary-grid">
+            <div className="summary-item">
+              <p className="summary-label">Total Years</p>
+              <p className="summary-value">{Object.keys(analytics.yearWiseTotals || {}).length}</p>
             </div>
-            <div>
-              <p className="text-sm text-gray-500">Total Categories</p>
-              <p className="text-2xl font-bold">{Object.keys(analytics.categoryWiseTotals || {}).length}</p>
+            <div className="summary-item">
+              <p className="summary-label">Total Categories</p>
+              <p className="summary-value">{Object.keys(analytics.categoryWiseTotals || {}).length}</p>
             </div>
-            <div>
-              <p className="text-sm text-gray-500">Active Faculty</p>
-              <p className="text-2xl font-bold">{Object.keys(analytics.facultyWiseContribution || {}).length}</p>
+            <div className="summary-item">
+              <p className="summary-label">Active Faculty</p>
+              <p className="summary-value">{Object.keys(analytics.facultyWiseContribution || {}).length}</p>
             </div>
-            <div>
-              <p className="text-sm text-gray-500">Status Types</p>
-              <p className="text-2xl font-bold">{Object.keys(analytics.statusWiseBreakdown || {}).length}</p>
+            <div className="summary-item">
+              <p className="summary-label">Status Types</p>
+              <p className="summary-value">{Object.keys(analytics.statusWiseBreakdown || {}).length}</p>
             </div>
           </div>
         </div>

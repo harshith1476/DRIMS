@@ -1,6 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Layout from '../components/Layout';
 import { adminService } from '../services/adminService';
+
+// Auto-refresh interval in milliseconds (5 seconds)
+const REFRESH_INTERVAL = 5000;
 
 function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -10,9 +13,23 @@ function AdminDashboard() {
     patents: 0,
     bookChapters: 0
   });
+  const intervalRef = useRef(null);
 
   useEffect(() => {
+    // Initial load
     loadStats();
+
+    // Set up auto-refresh interval
+    intervalRef.current = setInterval(() => {
+      loadStats();
+    }, REFRESH_INTERVAL);
+
+    // Cleanup interval on unmount
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
   }, []);
 
   const loadStats = async () => {
@@ -39,26 +56,38 @@ function AdminDashboard() {
 
   return (
     <Layout title="Admin Dashboard">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-gray-500 text-sm font-medium mb-2">Total Faculty</h3>
-          <p className="text-3xl font-bold text-blue-600">{stats.facultyCount}</p>
-        </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-gray-500 text-sm font-medium mb-2">Journals</h3>
-          <p className="text-3xl font-bold text-green-600">{stats.journals}</p>
-        </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-gray-500 text-sm font-medium mb-2">Conferences</h3>
-          <p className="text-3xl font-bold text-purple-600">{stats.conferences}</p>
-        </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-gray-500 text-sm font-medium mb-2">Patents</h3>
-          <p className="text-3xl font-bold text-orange-600">{stats.patents}</p>
-        </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-gray-500 text-sm font-medium mb-2">Book Chapters</h3>
-          <p className="text-3xl font-bold text-indigo-600">{stats.bookChapters}</p>
+      <div className="admin-dashboard">
+        <div className="stats-grid">
+          <div className="stat-card">
+            <div className="stat-card-content">
+              <h3 className="stat-label">Total Faculty</h3>
+              <p className="stat-value stat-value-blue">{stats.facultyCount}</p>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-card-content">
+              <h3 className="stat-label">Journals</h3>
+              <p className="stat-value stat-value-green">{stats.journals}</p>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-card-content">
+              <h3 className="stat-label">Conferences</h3>
+              <p className="stat-value stat-value-slate">{stats.conferences}</p>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-card-content">
+              <h3 className="stat-label">Patents</h3>
+              <p className="stat-value stat-value-slate">{stats.patents}</p>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-card-content">
+              <h3 className="stat-label">Book Chapters</h3>
+              <p className="stat-value stat-value-slate">{stats.bookChapters}</p>
+            </div>
+          </div>
         </div>
       </div>
     </Layout>

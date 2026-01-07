@@ -29,47 +29,47 @@ function AdminFacultyList() {
 
   return (
     <Layout title="Faculty Profiles">
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="admin-table-wrapper">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="admin-table">
+            <thead>
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Employee ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Designation</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Department</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Research Areas</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+                <th>Employee ID</th>
+                <th>Name</th>
+                <th>Designation</th>
+                <th>Department</th>
+                <th>Email</th>
+                <th>Research Areas</th>
+                <th>Action</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody>
               {profiles.map((profile) => (
                 <tr 
                   key={profile.id}
                   onClick={() => navigate(`/admin/faculty/${profile.id}`)}
-                  className="cursor-pointer hover:bg-blue-50 transition-colors"
+                  style={{ cursor: 'pointer' }}
                 >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">{profile.employeeId}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600 hover:text-blue-800">
+                  <td>{profile.employeeId}</td>
+                  <td style={{ fontWeight: 600, color: '#1e3a8a' }}>
                     {profile.name}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">{profile.designation}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">{profile.department}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">{profile.email}</td>
-                  <td className="px-6 py-4 text-sm">
-                    <div className="flex flex-wrap gap-1">
+                  <td>{profile.designation}</td>
+                  <td>{profile.department}</td>
+                  <td>{profile.email}</td>
+                  <td>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
                       {profile.researchAreas?.map((area, index) => (
-                        <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
+                        <span key={index} className="research-pill">
                           {area}
                         </span>
                       ))}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <button className="text-blue-600 hover:text-blue-800 font-medium">
+                  <td>
+                    <span style={{ color: '#1e3a8a', fontWeight: 500, fontSize: '13px' }}>
                       View Details →
-                    </button>
+                    </span>
                   </td>
                 </tr>
               ))}
