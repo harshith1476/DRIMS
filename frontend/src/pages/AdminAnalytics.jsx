@@ -18,10 +18,12 @@ function AdminAnalytics() {
     // Initial load
     loadAnalytics();
 
-    // Set up auto-refresh interval
+    // Set up auto-refresh interval (increased to 30s to prevent request storming)
     intervalRef.current = setInterval(() => {
-      refreshAnalytics();
-    }, REFRESH_INTERVAL);
+      if (!loading && !isRefreshing) {
+        refreshAnalytics();
+      }
+    }, 30000);
 
     // Cleanup interval on unmount
     return () => {
@@ -142,14 +144,14 @@ function AdminAnalytics() {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip 
+                <Tooltip
                   formatter={(value, name, props) => [
                     `${props.payload.name}: ${value}`,
                     'Count'
                   ]}
                 />
-                <Legend 
-                  verticalAlign="bottom" 
+                <Legend
+                  verticalAlign="bottom"
                   height={36}
                   formatter={(value, entry) => `${entry.payload.name}: ${entry.payload.value}`}
                 />
@@ -175,14 +177,14 @@ function AdminAnalytics() {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip 
+                <Tooltip
                   formatter={(value, name, props) => [
                     `${props.payload.name}: ${value}`,
                     'Count'
                   ]}
                 />
-                <Legend 
-                  verticalAlign="bottom" 
+                <Legend
+                  verticalAlign="bottom"
                   height={36}
                   formatter={(value, entry) => `${entry.payload.name}: ${entry.payload.value}`}
                 />
@@ -197,9 +199,9 @@ function AdminAnalytics() {
           <ResponsiveContainer width="100%" height={350}>
             <BarChart data={facultyWiseData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis 
-                dataKey="name" 
-                stroke="#64748b" 
+              <XAxis
+                dataKey="name"
+                stroke="#64748b"
                 angle={-45}
                 textAnchor="end"
                 height={100}

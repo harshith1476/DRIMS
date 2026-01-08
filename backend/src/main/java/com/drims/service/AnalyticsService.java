@@ -31,31 +31,41 @@ public class AnalyticsService {
     public AnalyticsDTO getAnalytics() {
         AnalyticsDTO analytics = new AnalyticsDTO();
         
+        // Fetch all data once to avoid repetitive DB calls
+        List<Journal> journals = journalRepository.findAll();
+        List<Conference> conferences = conferenceRepository.findAll();
+        List<Patent> patents = patentRepository.findAll();
+        List<BookChapter> bookChapters = bookChapterRepository.findAll();
+        List<FacultyProfile> allFaculty = facultyProfileRepository.findAll();
+        
         // Year-wise totals
         Map<Integer, Integer> yearWise = new HashMap<>();
-        addYearWiseCounts(journalRepository.findAll(), yearWise);
-        addYearWiseCounts(conferenceRepository.findAll(), yearWise);
-        addYearWiseCounts(patentRepository.findAll(), yearWise);
-        addYearWiseCounts(bookChapterRepository.findAll(), yearWise);
+        addYearWiseCounts(journals, yearWise);
+        addYearWiseCounts(conferences, yearWise);
+        addYearWiseCounts(patents, yearWise);
+        addYearWiseCounts(bookChapters, yearWise);
         analytics.setYearWiseTotals(yearWise);
         
         // Category-wise totals
         Map<String, Integer> categoryWise = new HashMap<>();
-        categoryWise.put("Journals", (int) journalRepository.count());
-        categoryWise.put("Conferences", (int) conferenceRepository.count());
-        categoryWise.put("Patents", (int) patentRepository.count());
-        categoryWise.put("Book Chapters", (int) bookChapterRepository.count());
+        categoryWise.put("Journals", journals.size());
+        categoryWise.put("Conferences", conferences.size());
+        categoryWise.put("Patents", patents.size());
+        categoryWise.put("Book Chapters", bookChapters.size());
         analytics.setCategoryWiseTotals(categoryWise);
         
-        // Faculty-wise contribution
+        // Faculty-wise contribution (Optimized in-memory aggregation)
+        // Map<FacultyId, Count>
+        Map<String, Integer> facultyIdCounts = new HashMap<>();
+        
+        countFacultyContributions(journals, facultyIdCounts);
+        countFacultyContributions(conferences, facultyIdCounts);
+        countFacultyContributions(patents, facultyIdCounts);
+        countFacultyContributions(bookChapters, facultyIdCounts);
+
         Map<String, Integer> facultyWise = new HashMap<>();
-        List<FacultyProfile> allFaculty = facultyProfileRepository.findAll();
         for (FacultyProfile faculty : allFaculty) {
-            int count = 0;
-            count += journalRepository.findByFacultyId(faculty.getId()).size();
-            count += conferenceRepository.findByFacultyId(faculty.getId()).size();
-            count += patentRepository.findByFacultyId(faculty.getId()).size();
-            count += bookChapterRepository.findByFacultyId(faculty.getId()).size();
+            int count = facultyIdCounts.getOrDefault(faculty.getId(), 0);
             if (count > 0) {
                 facultyWise.put(faculty.getName(), count);
             }
@@ -64,13 +74,28 @@ public class AnalyticsService {
         
         // Status-wise breakdown
         Map<String, Integer> statusWise = new HashMap<>();
-        addStatusCounts(journalRepository.findAll(), statusWise);
-        addStatusCounts(conferenceRepository.findAll(), statusWise);
-        addStatusCounts(patentRepository.findAll(), statusWise);
-        addStatusCounts(bookChapterRepository.findAll(), statusWise);
+        addStatusCounts(journals, statusWise);
+        addStatusCounts(conferences, statusWise);
+        addStatusCounts(patents, statusWise);
+        addStatusCounts(bookChapters, statusWise);
         analytics.setStatusWiseBreakdown(statusWise);
         
         return analytics;
+    }
+
+    // Helper to count contributions per faculty
+    private void countFacultyContributions(List<?> items, Map<String, Integer> counts) {
+        for (Object item : items) {
+             String facultyId = null;
+             if (item instanceof Journal) facultyId = ((Journal) item).getFacultyId();
+             else if (item instanceof Conference) facultyId = ((Conference) item).getFacultyId();
+             else if (item instanceof Patent) facultyId = ((Patent) item).getFacultyId();
+             else if (item instanceof BookChapter) facultyId = ((BookChapter) item).getFacultyId();
+             
+             if (facultyId != null) {
+                 counts.put(facultyId, counts.getOrDefault(facultyId, 0) + 1);
+             }
+        }
     }
     
     private void addYearWiseCounts(List<?> items, Map<Integer, Integer> yearWise) {
