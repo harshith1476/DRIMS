@@ -68,6 +68,7 @@ function AdminAnalytics() {
       link.remove();
     } catch (error) {
       console.error('Error exporting data:', error);
+      alert('Failed to export data. Please try again later.');
     }
   };
 

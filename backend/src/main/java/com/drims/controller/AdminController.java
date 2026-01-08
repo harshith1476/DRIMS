@@ -115,6 +115,7 @@ public class AdminController {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
             headers.setContentDispositionFormData("attachment", "research_data.xlsx");
+            headers.setAccessControlExposeHeaders(List.of("Content-Disposition"));
             
             return new ResponseEntity<>(excelData, headers, HttpStatus.OK);
         } catch (Exception e) {

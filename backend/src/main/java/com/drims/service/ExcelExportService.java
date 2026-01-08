@@ -29,34 +29,9 @@ public class ExcelExportService {
     @Autowired
     private FacultyProfileRepository facultyProfileRepository;
     
-    public byte[] exportToExcel(Integer year, String category) throws IOException {
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Research Data");
-        
-        int rowNum = 0;
-        Row headerRow = sheet.createRow(rowNum++);
-        
-        if (category == null || category.equals("Journals")) {
-            createJournalSheet(workbook, year);
-        }
-        if (category == null || category.equals("Conferences")) {
-            createConferenceSheet(workbook, year);
-        }
-        if (category == null || category.equals("Patents")) {
-            createPatentSheet(workbook, year);
-        }
-        if (category == null || category.equals("BookChapters")) {
-            createBookChapterSheet(workbook, year);
-        }
-        
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        workbook.write(outputStream);
-        workbook.close();
-        
-        return outputStream.toByteArray();
-    }
+
     
-    private void createJournalSheet(Workbook workbook, Integer year) {
+    private void createJournalSheet(Workbook workbook, Integer year, Map<String, String> facultyNames) {
         Sheet sheet = workbook.createSheet("Journals");
         int rowNum = 0;
         
@@ -69,8 +44,8 @@ public class ExcelExportService {
         List<Journal> journals = year != null ? journalRepository.findByYear(year) : journalRepository.findAll();
         for (Journal journal : journals) {
             Row row = sheet.createRow(rowNum++);
-            FacultyProfile faculty = facultyProfileRepository.findById(journal.getFacultyId()).orElse(null);
-            row.createCell(0).setCellValue(faculty != null ? faculty.getName() : "");
+            String facultyName = facultyNames.getOrDefault(journal.getFacultyId(), "");
+            row.createCell(0).setCellValue(facultyName);
             row.createCell(1).setCellValue(journal.getTitle());
             row.createCell(2).setCellValue(journal.getJournalName());
             row.createCell(3).setCellValue(journal.getAuthors());
@@ -83,10 +58,42 @@ public class ExcelExportService {
             row.createCell(10).setCellValue(journal.getStatus());
         }
         
-        autoSizeColumns(sheet, headers.length);
+        // autoSizeColumns(sheet, headers.length); // Disabled for performance
     }
     
-    private void createConferenceSheet(Workbook workbook, Integer year) {
+    public byte[] exportToExcel(Integer year, String category) throws IOException {
+        Workbook workbook = new XSSFWorkbook();
+        
+        // Optimize: Fetch all faculty names once
+        List<FacultyProfile> profiles = facultyProfileRepository.findAll();
+        java.util.Map<String, String> facultyNames = profiles.stream()
+            .collect(java.util.stream.Collectors.toMap(FacultyProfile::getId, FacultyProfile::getName, (a, b) -> a));
+
+        if (category == null || category.equals("Journals")) {
+            createJournalSheet(workbook, year, facultyNames);
+        }
+        if (category == null || category.equals("Conferences")) {
+            createConferenceSheet(workbook, year, facultyNames);
+        }
+        if (category == null || category.equals("Patents")) {
+            createPatentSheet(workbook, year, facultyNames);
+        }
+        if (category == null || category.equals("BookChapters")) {
+            createBookChapterSheet(workbook, year, facultyNames);
+        }
+        
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+        
+        return outputStream.toByteArray();
+    }
+    
+    // createJournalSheet is already updated in previous step, skipping it here in replacement to avoid conflicts if I use range.
+    // Actually I need to be careful not to overwrite the previously edited createJournalSheet if I select a large range.
+    // I will target from createConferenceSheet onwards.
+
+    private void createConferenceSheet(Workbook workbook, Integer year, java.util.Map<String, String> facultyNames) {
         Sheet sheet = workbook.createSheet("Conferences");
         int rowNum = 0;
         
@@ -97,8 +104,8 @@ public class ExcelExportService {
         List<Conference> conferences = year != null ? conferenceRepository.findByYear(year) : conferenceRepository.findAll();
         for (Conference conference : conferences) {
             Row row = sheet.createRow(rowNum++);
-            FacultyProfile faculty = facultyProfileRepository.findById(conference.getFacultyId()).orElse(null);
-            row.createCell(0).setCellValue(faculty != null ? faculty.getName() : "");
+            String facultyName = facultyNames.getOrDefault(conference.getFacultyId(), "");
+            row.createCell(0).setCellValue(facultyName);
             row.createCell(1).setCellValue(conference.getTitle());
             row.createCell(2).setCellValue(conference.getConferenceName());
             row.createCell(3).setCellValue(conference.getAuthors());
@@ -107,11 +114,9 @@ public class ExcelExportService {
             row.createCell(6).setCellValue(conference.getDate() != null ? conference.getDate() : "");
             row.createCell(7).setCellValue(conference.getStatus());
         }
-        
-        autoSizeColumns(sheet, headers.length);
     }
     
-    private void createPatentSheet(Workbook workbook, Integer year) {
+    private void createPatentSheet(Workbook workbook, Integer year, java.util.Map<String, String> facultyNames) {
         Sheet sheet = workbook.createSheet("Patents");
         int rowNum = 0;
         
@@ -122,8 +127,8 @@ public class ExcelExportService {
         List<Patent> patents = year != null ? patentRepository.findByYear(year) : patentRepository.findAll();
         for (Patent patent : patents) {
             Row row = sheet.createRow(rowNum++);
-            FacultyProfile faculty = facultyProfileRepository.findById(patent.getFacultyId()).orElse(null);
-            row.createCell(0).setCellValue(faculty != null ? faculty.getName() : "");
+            String facultyName = facultyNames.getOrDefault(patent.getFacultyId(), "");
+            row.createCell(0).setCellValue(facultyName);
             row.createCell(1).setCellValue(patent.getTitle());
             row.createCell(2).setCellValue(patent.getPatentNumber() != null ? patent.getPatentNumber() : "");
             row.createCell(3).setCellValue(patent.getInventors());
@@ -131,11 +136,9 @@ public class ExcelExportService {
             row.createCell(5).setCellValue(patent.getCountry() != null ? patent.getCountry() : "");
             row.createCell(6).setCellValue(patent.getStatus());
         }
-        
-        autoSizeColumns(sheet, headers.length);
     }
     
-    private void createBookChapterSheet(Workbook workbook, Integer year) {
+    private void createBookChapterSheet(Workbook workbook, Integer year, java.util.Map<String, String> facultyNames) {
         Sheet sheet = workbook.createSheet("Book Chapters");
         int rowNum = 0;
         
@@ -146,8 +149,8 @@ public class ExcelExportService {
         List<BookChapter> bookChapters = year != null ? bookChapterRepository.findByYear(year) : bookChapterRepository.findAll();
         for (BookChapter bookChapter : bookChapters) {
             Row row = sheet.createRow(rowNum++);
-            FacultyProfile faculty = facultyProfileRepository.findById(bookChapter.getFacultyId()).orElse(null);
-            row.createCell(0).setCellValue(faculty != null ? faculty.getName() : "");
+            String facultyName = facultyNames.getOrDefault(bookChapter.getFacultyId(), "");
+            row.createCell(0).setCellValue(facultyName);
             row.createCell(1).setCellValue(bookChapter.getTitle());
             row.createCell(2).setCellValue(bookChapter.getBookTitle());
             row.createCell(3).setCellValue(bookChapter.getAuthors());
@@ -158,8 +161,6 @@ public class ExcelExportService {
             row.createCell(8).setCellValue(bookChapter.getIsbn() != null ? bookChapter.getIsbn() : "");
             row.createCell(9).setCellValue(bookChapter.getStatus());
         }
-        
-        autoSizeColumns(sheet, headers.length);
     }
     
     private void createHeaderRow(Row headerRow, String[] headers, Workbook workbook) {
