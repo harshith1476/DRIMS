@@ -4,10 +4,10 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
   // Load env file based on `mode` in the current directory.
   const env = loadEnv(mode, process.cwd(), '');
-  
+
   return {
     plugins: [react()],
-    base: './', // Ensures assets are loaded from the correct path
+    base: '/', // Changed from './' to '/' to support client-side routing on nested paths
     build: {
       outDir: 'dist',
       assetsDir: 'assets',
