@@ -64,6 +64,8 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         List<String> origins = new java.util.ArrayList<>(Arrays.asList(allowedOrigins.split(",")));
         origins.add("https://frontend-ashen-eight-16.vercel.app");
+        origins.add("http://localhost:5173");
+        origins.add("http://localhost:3000");
         configuration.setAllowedOriginPatterns(origins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));

@@ -14,78 +14,78 @@ import AdminPublications from './pages/AdminPublications';
 const PrivateRoute = ({ children, allowedRoles }) => {
   const user = authService.getCurrentUser();
   const isAuthenticated = authService.isAuthenticated();
-  
+
   if (!isAuthenticated) {
     return <Navigate to="/login" />;
   }
-  
+
   if (allowedRoles && !allowedRoles.includes(user?.role)) {
     return <Navigate to="/" />;
   }
-  
+
   return children;
 };
 
 function App() {
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Routes>
         <Route path="/login" element={<Login />} />
-        
+
         <Route path="/faculty" element={
           <PrivateRoute allowedRoles={['FACULTY', 'ADMIN']}>
             <FacultyDashboard />
           </PrivateRoute>
         } />
-        
+
         <Route path="/faculty/profile" element={
           <PrivateRoute allowedRoles={['FACULTY', 'ADMIN']}>
             <FacultyProfile />
           </PrivateRoute>
         } />
-        
+
         <Route path="/faculty/targets" element={
           <PrivateRoute allowedRoles={['FACULTY', 'ADMIN']}>
             <FacultyTargets />
           </PrivateRoute>
         } />
-        
+
         <Route path="/faculty/publications" element={
           <PrivateRoute allowedRoles={['FACULTY', 'ADMIN']}>
             <FacultyPublications />
           </PrivateRoute>
         } />
-        
+
         <Route path="/admin" element={
           <PrivateRoute allowedRoles={['ADMIN']}>
             <AdminDashboard />
           </PrivateRoute>
         } />
-        
+
         <Route path="/admin/faculty" element={
           <PrivateRoute allowedRoles={['ADMIN']}>
             <AdminFacultyList />
           </PrivateRoute>
         } />
-        
+
         <Route path="/admin/faculty/:id" element={
           <PrivateRoute allowedRoles={['ADMIN']}>
             <AdminFacultyDetail />
           </PrivateRoute>
         } />
-        
+
         <Route path="/admin/publications" element={
           <PrivateRoute allowedRoles={['ADMIN']}>
             <AdminPublications />
           </PrivateRoute>
         } />
-        
+
         <Route path="/admin/analytics" element={
           <PrivateRoute allowedRoles={['ADMIN']}>
             <AdminAnalytics />
           </PrivateRoute>
         } />
-        
+
         <Route path="/" element={<Navigate to="/login" />} />
       </Routes>
     </Router>
