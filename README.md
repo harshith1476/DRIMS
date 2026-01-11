@@ -585,7 +585,25 @@ This project is created for academic purposes.
 
 ## 📸 Screenshots
 
-> _Screenshots of the application will be added here_
+### Login Pages
+
+#### Admin Login
+![Admin Login](admin%20login.png)
+*Administrator Portal - System Administration & Analytics*
+
+#### Faculty Login
+![Faculty Login](faculty%20login.png)
+*Faculty Portal - Research Publication Management*
+
+#### Student Login
+![Student Login](student%20login.png)
+*Student Portal - Research & Academic Management*
+
+### Key Features
+- **Multi-role Authentication**: Separate login interfaces for Admin, Faculty, and Students
+- **Clean UI Design**: Professional, university-grade interface with responsive design
+- **Mobile-Responsive**: Fully optimized for mobile, tablet, and desktop devices
+- **Secure Access**: JWT-based authentication with role-based access control
 
 ## 👨‍💻 Author
 
