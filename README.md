@@ -11,8 +11,31 @@ A complete, production-ready web application for managing academic research data
 🌐 **Live Demo:** [ajp-pro.vercel.app](https://ajp-pro.vercel.app)  
 📦 **Repository:** [GitHub](https://github.com/harshith1476/DRIMS)
 
+## 📸 Screenshots
+
+### Login Pages
+
+#### Admin Login
+![Admin Login](admin%20login.png)
+*Administrator Portal - System Administration & Analytics*
+
+#### Faculty Login
+![Faculty Login](faculty%20login.png)
+*Faculty Portal - Research Publication Management*
+
+#### Student Login
+![Student Login](student%20login.png)
+*Student Portal - Research & Academic Management*
+
+### Key Features
+- **Multi-role Authentication**: Separate login interfaces for Admin, Faculty, and Students
+- **Clean UI Design**: Professional, university-grade interface with responsive design
+- **Mobile-Responsive**: Fully optimized for mobile, tablet, and desktop devices
+- **Secure Access**: JWT-based authentication with role-based access control
+
 ## 📑 Table of Contents
 
+- [Screenshots](#-screenshots)
 - [Project Overview](#-project-overview)
 - [Features](#-features)
 - [Tech Stack](#️-tech-stack)
@@ -582,28 +605,6 @@ This is an academic project. Contributions are welcome! For improvements:
 ## 📄 License
 
 This project is created for academic purposes.
-
-## 📸 Screenshots
-
-### Login Pages
-
-#### Admin Login
-![Admin Login](admin%20login.png)
-*Administrator Portal - System Administration & Analytics*
-
-#### Faculty Login
-![Faculty Login](faculty%20login.png)
-*Faculty Portal - Research Publication Management*
-
-#### Student Login
-![Student Login](student%20login.png)
-*Student Portal - Research & Academic Management*
-
-### Key Features
-- **Multi-role Authentication**: Separate login interfaces for Admin, Faculty, and Students
-- **Clean UI Design**: Professional, university-grade interface with responsive design
-- **Mobile-Responsive**: Fully optimized for mobile, tablet, and desktop devices
-- **Secure Access**: JWT-based authentication with role-based access control
 
 ## 👨‍💻 Author
 
