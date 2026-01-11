@@ -9,7 +9,9 @@
 A complete, production-ready web application for managing academic research data, replacing Excel-based data collection with a secure, modern web platform.
 
 🌐 **Live Demo:** [ajp-pro.vercel.app](https://ajp-pro.vercel.app)  
-📦 **Repository:** [GitHub](https://github.com/harshith1476/DRIMS)
+📦 **Repository:** [GitHub](https://github.com/harshith1476/DRIMS)  
+🚀 **Frontend Dashboard:** [Vercel](https://vercel.com/harshith1476s-projects/frontend/2H6cGLQq7JwkEcCd74mDy6wc2qM8)  
+⚙️ **Backend Dashboard:** [Render](https://dashboard.render.com/web/srv-d5f2d3h5pdvs73fssjng)
 
 ## 📸 Screenshots
 
@@ -434,6 +436,12 @@ npm run preview
 
 ## 🚢 Deployment Guide
 
+### Current Deployment
+
+**Frontend:** Deployed on [Vercel](https://vercel.com/harshith1476s-projects/frontend/2H6cGLQq7JwkEcCd74mDy6wc2qM8)  
+**Backend:** Deployed on [Render](https://dashboard.render.com/web/srv-d5f2d3h5pdvs73fssjng)  
+**Live Application:** [ajp-pro.vercel.app](https://ajp-pro.vercel.app)
+
 ### Backend Deployment
 
 #### Option 1: Render.com (Recommended)
@@ -446,6 +454,8 @@ The project includes `render.yaml` for easy deployment:
    - `SPRING_DATA_MONGODB_URI`: Your MongoDB connection string
    - `JWT_SECRET`: A secure random string
    - `CORS_ALLOWED_ORIGINS`: Your frontend URL(s)
+
+**Current Backend Dashboard:** [Render Dashboard](https://dashboard.render.com/web/srv-d5f2d3h5pdvs73fssjng)
 
 #### Option 2: JAR File (Local/Server)
 ```bash
@@ -486,6 +496,8 @@ The project includes `vercel.json` for easy deployment:
 4. Or connect GitHub repository to Vercel dashboard
 
 **Note:** Update backend CORS settings to include your Vercel URL.
+
+**Current Frontend Dashboard:** [Vercel Dashboard](https://vercel.com/harshith1476s-projects/frontend/2H6cGLQq7JwkEcCd74mDy6wc2qM8)
 
 #### Option 2: Netlify
 ```bash
