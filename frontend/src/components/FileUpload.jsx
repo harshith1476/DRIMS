@@ -94,7 +94,8 @@ function FileUpload({
       formData.append('userId', userId);
       formData.append('category', category);
 
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/files/upload`, {
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:8080/api' : 'https://drims-rnv0.onrender.com/api');
+      const response = await fetch(`${apiBaseUrl}/files/upload`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -141,7 +142,8 @@ function FileUpload({
   const handleDownload = () => {
     if (!acceptedFile) return;
     
-    const downloadUrl = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/files/download?path=${encodeURIComponent(acceptedFile)}`;
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:8080/api' : 'https://drims-rnv0.onrender.com/api');
+    const downloadUrl = `${apiBaseUrl}/files/download?path=${encodeURIComponent(acceptedFile)}`;
     window.open(downloadUrl, '_blank');
   };
 

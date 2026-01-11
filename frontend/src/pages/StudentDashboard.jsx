@@ -146,7 +146,8 @@ function StudentDashboard() {
       formData.append('userId', profile.id);
       formData.append('category', `${category}/${fileType}`);
 
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/files/upload`, {
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:8080/api' : 'https://drims-rnv0.onrender.com/api');
+      const response = await fetch(`${apiBaseUrl}/files/upload`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`

@@ -44,7 +44,8 @@ function Login() {
       if (err.message) {
         // Network/timeout errors
         if (err.message.includes('timeout') || err.message.includes('network') || err.message.includes('Cannot connect')) {
-          errorMessage = 'Cannot connect to server. Please ensure the backend is running on http://localhost:8080';
+          const backendUrl = import.meta.env.DEV ? 'http://localhost:8080' : 'https://drims-rnv0.onrender.com';
+          errorMessage = `Cannot connect to server. Please ensure the backend is running on ${backendUrl}`;
         } else if (err.message.includes('timeout of')) {
           errorMessage = 'Request timed out. The server is taking too long to respond.';
         } else {

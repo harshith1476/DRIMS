@@ -2,6 +2,7 @@ import axios from 'axios';
 
 // Use environment variable for API URL, fallback to localhost for local development
 // In production, set VITE_API_BASE_URL environment variable
+// Production backend: https://drims-rnv0.onrender.com
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
   (import.meta.env.DEV ? 'http://localhost:8080/api' : 'https://drims-rnv0.onrender.com/api');
 
@@ -46,7 +47,8 @@ api.interceptors.response.use(
     // Handle network errors (server not reachable)
     if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
       console.error('Network error - Cannot reach the server');
-      error.message = 'Cannot connect to the server. Please ensure the backend is running on http://localhost:8080';
+      const backendUrl = import.meta.env.DEV ? 'http://localhost:8080' : 'https://drims-rnv0.onrender.com';
+      error.message = `Cannot connect to the server. Please ensure the backend is running on ${backendUrl}`;
     }
     
     // Handle 401 errors
